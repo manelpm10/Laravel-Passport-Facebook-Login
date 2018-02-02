@@ -1,12 +1,19 @@
 <?php
+
 namespace Danjdewhurst\PassportFacebookLogin;
 
+use App\User;
 use Facebook\Facebook;
 use Illuminate\Http\Request;
 use League\OAuth2\Server\Exception\OAuthServerException;
 
 trait FacebookLoginTrait
 {
+    /**
+     * @var string
+     */
+    protected $profilePicUrl = 'https://graph.facebook.com/{FACEBOOK_ID}/picture?type=large';
+
     /**
      * Logs a App\User in using a Facebook token via Passport
      *
@@ -18,14 +25,9 @@ trait FacebookLoginTrait
     public function loginFacebook(Request $request)
     {
         try {
-            /**
-             * Check if the 'fb_token' as passed.
-             */
             if ($request->get('fb_token')) {
 
-                /**
-                 * Initialise Facebook SDK.
-                 */
+                // Initialise Facebook SDK.
                 $fb = new Facebook([
                     'app_id' => config('facebook.app.id'),
                     'app_secret' => config('facebook.app.secret'),
@@ -33,53 +35,35 @@ trait FacebookLoginTrait
                 ]);
                 $fb->setDefaultAccessToken($request->get('fb_token'));
 
-                /**
-                 * Make the Facebook request.
-                 */
+                // Facebook request.
                 $response = $fb->get('/me?locale=en_GB&fields=first_name,last_name,email');
                 $fbUser = $response->getDecodedBody();
 
-                /**
-                 * Check if the user has already signed up.
-                 */
+                if (empty($fbUser['email'])) {
+                    throw new \Exception('Email access revoked', 400);
+                }
+
+                /** @var User $userModel */
                 $userModel = config('auth.providers.users.model');
 
-                /**
-                 * Create a new user if they haven't already signed up.
-                 */
-                $facebook_id_column = config('facebook.registration.facebook_id', 'facebook_id');
-                $name_column        = config('facebook.registration.name', 'name');
-                $first_name_column  = config('facebook.registration.first_name', 'first_name');
-                $last_name_column   = config('facebook.registration.last_name', 'last_name');
-                $email_column       = config('facebook.registration.email', 'email');
-                $password_column    = config('facebook.registration.password', 'password');
+                $user = $userModel::where('email', $fbUser['email'])
+                    ->orWhere('facebook_id', $fbUser['id'])
+                    ->first();
 
-                $user = $userModel::where($facebook_id_column, $fbUser['id'])->first();
-
-                if (!$user) {
+                // Check if the user has already signed up.
+                if (empty($user)) {
                     $user = new $userModel();
-                    $user->{$facebook_id_column} = $fbUser['id'];
-
-                    if ($first_name_column) {
-                        $user->{$first_name_column} = $fbUser['first_name'];
-                    }
-                    if ($last_name_column) {
-                        $user->{$last_name_column} = $fbUser['last_name'];
-                    }
-                    if ($name_column) {
-                        $user->{$name_column} = $fbUser['first_name'] . ' ' . $fbUser['last_name'];
-                    }
-
-                    $user->{$email_column}    = $fbUser['email'];
-                    $user->{$password_column} = bcrypt(uniqid('fb_', true)); // Random password.
+                    $user->facebook_id = $fbUser['id'];
+                    $user->name = $fbUser['first_name'];
+                    $user->avatar = $this->buildProfilePictureUrl($fbUser['id']);
+                    $user->email = $fbUser['email'];
+                    $user->password = uniqid('fb_', true);
                     $user->save();
-
-                    /**
-                     * Attach a role to the user.
-                     */
-                    if (!is_null(config('facebook.registration.attach_role'))) {
-                        $user->attachRole(config('facebook.registration.attach_role'));
-                    }
+                } elseif (empty($user->facebook_id)) {
+                    // If user is signed up before via credentials, save the facebook id.
+                    $user->facebook_id = $fbUser['id'];
+                    $user->avatar = $this->buildProfilePictureUrl($fbUser['id']);
+                    $user->save();
                 }
 
                 return $user;
@@ -87,6 +71,17 @@ trait FacebookLoginTrait
         } catch (\Exception $e) {
             throw OAuthServerException::accessDenied($e->getMessage());
         }
+
         return null;
+    }
+
+    /**
+     * @param string $facebookId
+     *
+     * @return string
+     */
+    protected function buildProfilePictureUrl($facebookId)
+    {
+        return str_replace('{FACEBOOK_ID}', $facebookId, $this->profilePicUrl);
     }
 }
