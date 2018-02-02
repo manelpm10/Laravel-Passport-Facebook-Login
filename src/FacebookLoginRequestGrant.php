@@ -4,6 +4,7 @@ namespace Danjdewhurst\PassportFacebookLogin;
 
 use Illuminate\Http\Request;
 use Laravel\Passport\Bridge\User;
+use Laravel\Passport\Passport;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AbstractGrant;
