@@ -52,9 +52,14 @@ trait FacebookLoginTrait
 
                 // Check if the user has already signed up.
                 if (empty($user)) {
+                    $fullName = $fbUser['first_name'];
+                    if (!empty($fbUser['last_name']) {
+                        $fullName .= ' ' . $fbUser['last_name'];
+                    }
+
                     $user = new $userModel();
                     $user->facebook_id = $fbUser['id'];
-                    $user->name = $fbUser['first_name'];
+                    $user->name = $fullName;
                     $user->avatar = $this->buildProfilePictureUrl($fbUser['id']);
                     $user->email = $fbUser['email'];
                     $user->password = uniqid('fb_', true);
