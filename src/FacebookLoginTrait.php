@@ -53,7 +53,7 @@ trait FacebookLoginTrait
                 // Check if the user has already signed up.
                 if (empty($user)) {
                     $fullName = $fbUser['first_name'];
-                    if (!empty($fbUser['last_name']) {
+                    if (!empty($fbUser['last_name'])) {
                         $fullName .= ' ' . $fbUser['last_name'];
                     }
 
