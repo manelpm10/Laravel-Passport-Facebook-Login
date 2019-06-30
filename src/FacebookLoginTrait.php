@@ -63,11 +63,14 @@ trait FacebookLoginTrait
                     $user->avatar = $this->buildProfilePictureUrl($fbUser['id']);
                     $user->email = $fbUser['email'];
                     $user->password = uniqid('fb_', true);
+                    $user->language = $request->get('language', 'en');
+
                     $user->save();
                 } elseif (empty($user->facebook_id)) {
                     // If user is signed up before via credentials, save the facebook id.
                     $user->facebook_id = $fbUser['id'];
                     $user->avatar = $this->buildProfilePictureUrl($fbUser['id']);
+
                     $user->save();
                 }
 
