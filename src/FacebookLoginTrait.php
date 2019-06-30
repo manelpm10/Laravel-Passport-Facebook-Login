@@ -64,6 +64,7 @@ trait FacebookLoginTrait
                     $user->email = $fbUser['email'];
                     $user->password = uniqid('fb_', true);
                     $user->language = $request->get('language', 'en');
+                    $user->is_verified = 1;
 
                     $user->save();
                 } elseif (empty($user->facebook_id)) {
