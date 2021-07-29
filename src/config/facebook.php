@@ -14,7 +14,7 @@ return [
     'app' => [
         'id' => env('FACEBOOK_APP_ID'),
         'secret' => env('FACEBOOK_APP_SECRET'),
-        'token_expire_interval' => env('TOKEN_EXPIRE_INTERVAL'),
+        'token_expire_interval' => env('TOKEN_EXPIRE_INTERVAL', 'P1D'),
     ],
 
     /*

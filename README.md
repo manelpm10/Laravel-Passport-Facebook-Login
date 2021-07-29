@@ -4,7 +4,7 @@ Provides a new Laravel Passport Grant Client named `facebook_login`, allowing yo
 A new user will be created (and optionally assigned to an role - `$user->attachRole(ID)`) if the email address doesn't exist.
 
 ## Installation:
-Install with composer `composer require danjdewhurst/laravel-passport-facebook-login`
+Install with composer `composer require manelpm10/laravel-passport-facebook-login`
 
 ### Versions:
 * Laravel 5.5 and Passport 4.0 only supported at this time
@@ -27,13 +27,15 @@ Install with composer `composer require danjdewhurst/laravel-passport-facebook-l
     | Application
     |--------------------------------------------------------------------------
     |
-    | The facebook ID and secret from the developer's page
+    | The facebook ID, secret from the developer's page and the DateInterval format for expire token ttl.
+    | See https://www.php.net/manual/es/dateinterval.format.php for mor info about format
     |
     */
 
     'app' => [
         'id' => env('FACEBOOK_APP_ID'),
         'secret' => env('FACEBOOK_APP_SECRET'),
+        'token_expire_interval' => env('TOKEN_EXPIRE_INTERVAL', 'P1D'),
     ],
 
     /*
