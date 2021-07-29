@@ -6,13 +6,15 @@ return [
     | Application
     |--------------------------------------------------------------------------
     |
-    | The facebook ID and secret from the developer's page
+    | The facebook ID, secret from the developer's page and the DateInterval format.
+    | See https://www.php.net/manual/es/dateinterval.format.php for mor info about format
     |
     */
 
     'app' => [
         'id' => env('FACEBOOK_APP_ID'),
         'secret' => env('FACEBOOK_APP_SECRET'),
+        'token_expire_interval' => env('TOKEN_EXPIRE_INTERVAL'),
     ],
 
     /*
