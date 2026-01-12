@@ -2,9 +2,10 @@
 
 namespace Danjdewhurst\PassportFacebookLogin;
 
-use App\User;
-use Facebook\Facebook;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use JanuSoftware\Facebook\Facebook;
 use League\OAuth2\Server\Exception\OAuthServerException;
 
 trait FacebookLoginTrait
@@ -17,10 +18,10 @@ trait FacebookLoginTrait
     /**
      * Logs a App\User in using a Facebook token via Passport
      *
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      *
-     * @return \Illuminate\Database\Eloquent\Model|null
-     * @throws \League\OAuth2\Server\Exception\OAuthServerException
+     * @return Model|null
+     * @throws OAuthServerException
      */
     public function loginFacebook(Request $request)
     {
